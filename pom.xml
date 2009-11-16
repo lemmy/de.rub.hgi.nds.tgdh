@@ -1,0 +1,109 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.rub.hgi.nds.tgdh</groupId>
+	<artifactId>de.rub.hgi.nds.tgdh</artifactId>
+	<name>Tree Group Diffie Hellman</name>
+	<version>0.0.1.SNAPSHOT</version>
+	<packaging>bundle</packaging>
+
+	<url>http://www.ruhr-uni-bochum.de/nds/forschung/gebiete/tgdh/</url>
+
+	<organization>
+		<name>Network and Data Security, Ruhr University Bochum</name>
+		<url>http://www.nds.ruhr-uni-bochum.de/</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<name>Lijun Liao</name>
+			<url>http://nds.hgi.rub.de/liao/</url>
+			<email>lijun.liao@nds.rub.de</email>
+			<roles>
+				<role>Project creator</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>All non-derived code is copyrighted by Lijun Liao</name>
+			<distribution>manual</distribution>
+			<comments>This work might be patented by Deutsche Telekom!!!</comments>
+		</license>
+	</licenses>    
+
+
+	<build>
+		<plugins>
+			<!-- http://felix.apache.org/site/maven-bundle-plugin-bnd.html -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Include-Resource>{maven-resources}, {maven-dependencies},
+							target/classes</Include-Resource>
+						<Bundle-Version>${pom.version}</Bundle-Version>
+						<Bundle-Name>Tree Group Diffie-Hellman</Bundle-Name>
+						<Bundle-SymbolicName>de.rub.hgi.nds.tgdh</Bundle-SymbolicName>
+						<Export-Package>tgdh;version=1.0.0</Export-Package>
+						<_include>~META-INF/MANIFEST.MF</_include>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>com.springsource.org.bouncycastle.jce</artifactId>
+			<version>1.39.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jgroups</groupId>
+			<artifactId>com.springsource.org.jgroups</artifactId>
+			<version>2.5.1</version>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle
+				Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle
+				Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.libraries.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource
+				Library Releases</name>
+			<url>http://repository.springsource.com/maven/libraries/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.libraries.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Library
+				Releases</name>
+			<url>http://repository.springsource.com/maven/libraries/external</url>
+		</repository>
+	</repositories>
+
+</project>
