@@ -35,7 +35,7 @@ public class TreeGroupDiffieHellman {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
-	public static TgdhGroupIdentifier newGroup(DSAKey dsaKey, TgdhCallback callback, InetAddress inetAddress)
+	public static TgdhGroupIdentifier newGroup(DSAKey dsaKey, TgdhKeyListener keyListener, InetAddress inetAddress)
 			throws Exception {
 	
 		// TODO convert to parameters
@@ -47,11 +47,13 @@ public class TreeGroupDiffieHellman {
 	
 		Worker worker = createWorker(mcast_address, mcast_port, group, dsaParams);
 		
-		return new TgdhGroupIdentifier(mcast_address, mcast_port, group, worker);
+		TgdhGroupIdentifier groupIdentifier = new TgdhGroupIdentifier(mcast_address, mcast_port, group, worker);
+		keyListener.setGroupIdentifer(groupIdentifier);
+		return groupIdentifier;
 	}
 
 	public static TgdhGroupIdentifier joinGroup(DSAKey dsaKey, String multicastAddress,
-			int multicastPort, String groupName, TgdhCallback callBack) throws Exception {
+			int multicastPort, String groupName, TgdhKeyListener keyListener) throws Exception {
 
 		DSAParams dsaParams = dsaKey.getParams();
 	
@@ -59,7 +61,9 @@ public class TreeGroupDiffieHellman {
 				groupName, dsaParams);
 		worker.joinGroup();
 		
-		return new TgdhGroupIdentifier(multicastAddress, multicastPort, groupName, worker);
+		TgdhGroupIdentifier groupIdentifier = new TgdhGroupIdentifier(multicastAddress, multicastPort, groupName, worker);
+		keyListener.setGroupIdentifer(groupIdentifier);
+		return groupIdentifier;
 	}
 
 	private static Worker createWorker(String multicastAddress,

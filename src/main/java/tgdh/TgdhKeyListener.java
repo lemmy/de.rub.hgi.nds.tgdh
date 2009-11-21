@@ -11,9 +11,34 @@
 
 package tgdh;
 
+import java.security.interfaces.DSAKey;
+
 /**
  * @author Markus Alexander Kuppe
  */
-public class TgdhCallback {
+public abstract class TgdhKeyListener {
+	
+	private TgdhGroupIdentifier groupIdentifer;
+	
+	/**
+	 * This method is called by TGDH to notify the listener about a key change
+	 * for this Security Group
+	 * 
+	 * @param dsaKey 
+	 */
+	public abstract void keyChanged(DSAKey dsaKey);
 
+	/**
+	 * @return the groupIdentifer
+	 */
+	public TgdhGroupIdentifier getGroupIdentifer() {
+		return groupIdentifer;
+	}
+
+	/**
+	 * @param groupIdentifer the groupIdentifer to set
+	 */
+	public void setGroupIdentifer(TgdhGroupIdentifier groupIdentifer) {
+		this.groupIdentifer = groupIdentifer;
+	}
 }
