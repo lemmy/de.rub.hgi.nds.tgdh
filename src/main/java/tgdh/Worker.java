@@ -39,7 +39,8 @@ import tgdh.tree.*;
  * @version 1.0
  */
 public class Worker extends Thread {	
-    private int treeSequence = 0;		
+    private static final int KEY_SIZE = 512;
+	private int treeSequence = 0;		
     private int expectedAction;
     private boolean isSponsor;
 	
@@ -53,6 +54,8 @@ public class Worker extends Thread {
     private PartitionList   partitionList;
     private Tree            anotherTree;
     private int             anotherTreeSequence;
+    
+    private TgdhKeyListener		keyListener;
     
     /**
      * Constructs a new worker with detail group name, key tree and communicator
@@ -68,10 +71,23 @@ public class Worker extends Thread {
             int tryTimes)
     	throws TgdhException
     {
+    	this(group, tree, communicator, tryTimes, null);
+    }
+    
+    public Worker(
+    		String 		 group,
+            Tree 		 tree, 
+            Communicator communicator,
+            int tryTimes,
+            TgdhKeyListener keyListener)
+    	throws TgdhException
+    {
     	this.group		  = group;
         this.tree 		  = tree;        
         this.communicator = communicator;
         this.tryTimes     = tryTimes;
+        this.keyListener  = keyListener;
+        keyListener.keyChanged(tree.getSymmetricKey(KEY_SIZE));
         
         inQueue  	  = new LinkedList();
         outQueue 	  = new LinkedList();
@@ -81,8 +97,7 @@ public class Worker extends Thread {
 		       
         start();
     }
-    
-    
+
     /**
      * Returns the key tree
      * @return the key tree.
@@ -175,7 +190,7 @@ public class Worker extends Thread {
 		    tmsg.init4verify(owner.getVerifyKey());		    
 		    outQueue.add(tmsg);
 		    
-			printTree();
+			treeChanged();
 		}else{  // no sponsor
 			expectedAction = TgdhMessage.UPDATE;
 		}
@@ -214,7 +229,7 @@ public class Worker extends Thread {
 			tmsg.sign();
 			tmsg.init4verify(owner.getVerifyKey());
 			outQueue.add(tmsg);			
-			printTree();
+			treeChanged();
 		}
 		else{
 			expectedAction = TgdhMessage.UPDATE;
@@ -269,7 +284,7 @@ public class Worker extends Thread {
 		}
 		else{
 			isSponsor = false;
-			printTree();	
+			treeChanged();	
 		}		
 		LeafNode owner = tree.getOwner();
 		TgdhMessage tmsg = new UpdateMessage(
@@ -321,7 +336,7 @@ public class Worker extends Thread {
 				tmsg.sign();
 				tmsg.init4verify(owner.getVerifyKey());				
 				outQueue.add(tmsg);				
-				printTree();				 
+				treeChanged();				 
 			} else{
 				expectedAction = TgdhMessage.UPDATE;
 			}
@@ -366,7 +381,7 @@ public class Worker extends Thread {
 			tmsg.init4verify(owner.getVerifyKey());				
 			outQueue.add(tmsg);				
 			expectedAction = TgdhMessage.NOSPECIAL;
-			printTree();				 
+			treeChanged();				 
 		} else{
 			expectedAction = TgdhMessage.UPDATE;
 		}      	
@@ -433,7 +448,7 @@ public class Worker extends Thread {
         
 		expectedAction = TgdhMessage.NOSPECIAL;
 		treeSequence   = message.getTreeSequence();
-        printTree();
+        treeChanged();
         return true;
    }            
         
@@ -468,7 +483,7 @@ public class Worker extends Thread {
 			tree.computeKeys(tree.getOwner().getParent());
 		expectedAction = TgdhMessage.NOSPECIAL;
 		/* print tree and groupkey */
-		printTree();
+		treeChanged();
 	}
 	return true;		
    }
@@ -570,7 +585,7 @@ public class Worker extends Thread {
         outQueue.add(msg);
         
         expectedAction = TgdhMessage.MERGE;
-        printTree();
+        treeChanged();
     }
     
     /**
@@ -658,10 +673,10 @@ public class Worker extends Thread {
     
     
  	
-    private void printTree(){
-        System.out.println(tree.toString());
-        System.out.println("Sym. GroupKey (160 Bit):");
-        System.out.println(TgdhUtil.toHex(tree.getSymmetricKey(160)) + "\n");
+    private void treeChanged(){
+    	if(keyListener != null) {
+    		keyListener.keyChanged(tree.getSymmetricKey(KEY_SIZE));
+    	}
     }
     
     
@@ -712,7 +727,7 @@ public class Worker extends Thread {
 		this.group = groupname;
 	}
 
-/**
+	/**
  * This class implements a list to manages the members who leave the group 
  * caused by abnormally reason, e.g. network fault, terminate of the programm.
  */

@@ -14,12 +14,11 @@ package tgdh;
 /**
  * @author Markus Alexander Kuppe
  */
-public class TgdhGroupIdentifier {
+public class TgdhGroupIdentifier implements SecurityGroupIdentifier {
 
 	private String groupName;
 	private int mcastPort;
 	private String mcastAddress;
-	private Worker worker;
 
 	/**
 	 * @param mcast_address
@@ -27,11 +26,10 @@ public class TgdhGroupIdentifier {
 	 * @param group
 	 * @param worker 
 	 */
-	public TgdhGroupIdentifier(String mcast_address, int mcast_port, String group, Worker worker) {
+	public TgdhGroupIdentifier(String mcast_address, int mcast_port, String group) {
 		this.mcastAddress = mcast_address;
 		this.mcastPort = mcast_port;
 		this.groupName = group;
-		this.worker = worker;
 	}
 
 	/**
@@ -53,10 +51,5 @@ public class TgdhGroupIdentifier {
 	 */
 	public String getMulticastAddress() {
 		return mcastAddress;
-	}
-
-	public byte[] getSessionKey() {
-		int keyBits = 512;
-		return worker.getTree().getSymmetricKey(keyBits);
 	}
 }

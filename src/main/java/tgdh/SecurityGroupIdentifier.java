@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Markus Alexander Kuppe
+ * Copyright (c) 2010 Markus Alexander Kuppe
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,28 +8,21 @@
  * Contributors:
  *     Markus Alexander Kuppe (ecf-dev <at> lemmster <dot> de) - initial API and implementation
  ******************************************************************************/
-
 package tgdh;
 
-
-
-/**
- * @author Markus Alexander Kuppe
- */
-public abstract class TgdhKeyListener {
-	
-	protected TgdhGroupIdentifier groupIdentifer;
-	
+public interface SecurityGroupIdentifier {
 	/**
-	 * This method is called by TGDH to notify the listener about a key change
-	 * for this Security Group
+	 * @return the groupName
 	 */
-	public abstract void keyChanged(byte[] keyBits);
+	public String getGroupName();
 
 	/**
-	 * @param groupIdentifier
+	 * @return the mcastPort
 	 */
-	void setGroupIdentifer(TgdhGroupIdentifier groupIdentifier) {
-		this.groupIdentifer = groupIdentifier;
-	}
+	public int getMulticastPort();
+
+	/**
+	 * @return the mcastAddress
+	 */
+	public String getMulticastAddress();
 }
