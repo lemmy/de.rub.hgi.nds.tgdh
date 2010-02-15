@@ -19,6 +19,7 @@ package tgdh;
 public abstract class TgdhKeyListener {
 	
 	protected TgdhGroupIdentifier groupIdentifer;
+	protected Object lock = new Object();
 	
 	/**
 	 * This method is called by TGDH to notify the listener about a key change
@@ -31,5 +32,12 @@ public abstract class TgdhKeyListener {
 	 */
 	void setGroupIdentifer(TgdhGroupIdentifier groupIdentifier) {
 		this.groupIdentifer = groupIdentifier;
+	}
+
+	/**
+	 * @param lock
+	 */
+	public void setLock(Object lock) {
+		this.lock = lock;
 	}
 }

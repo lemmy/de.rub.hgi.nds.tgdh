@@ -87,7 +87,6 @@ public class Worker extends Thread {
         this.communicator = communicator;
         this.tryTimes     = tryTimes;
         this.keyListener  = keyListener;
-        keyListener.keyChanged(tree.getSymmetricKey(KEY_SIZE));
         
         inQueue  	  = new LinkedList();
         outQueue 	  = new LinkedList();

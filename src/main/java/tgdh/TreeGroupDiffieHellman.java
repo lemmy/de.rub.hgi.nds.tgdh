@@ -35,8 +35,8 @@ public class TreeGroupDiffieHellman {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
-	public static TgdhGroupIdentifier newGroup(DSAKey dsaKey,
-			TgdhKeyListener keyListener, InetAddress inetAddress)
+	public static TgdhGroupIdentifier newGroup(final DSAKey dsaKey,
+			final TgdhKeyListener keyListener, final InetAddress inetAddress)
 			throws Exception {
 
 		// TODO set params dynamically if more than one SG
@@ -44,52 +44,64 @@ public class TreeGroupDiffieHellman {
 		String mcast_address = "228.222.11.8";
 		int mcast_port = 3141;
 
-		TgdhGroupIdentifier groupIdentifier = new TgdhGroupIdentifier(
+		final TgdhGroupIdentifier groupIdentifier = new TgdhGroupIdentifier(
 				mcast_address, mcast_port, group);
 		keyListener.setGroupIdentifer(groupIdentifier);
 
-		Worker worker = createWorker(mcast_address, mcast_port, group,
+		final Worker worker = createWorker(mcast_address, mcast_port, group,
 				dsaKey, keyListener);
-
+		
+		// set the initial GSK to the current tree (after all we are the root and have no members yet)
+		keyListener.keyChanged(worker.getTree().getSymmetricKey(512));
+		
 		return groupIdentifier;
 	}
 
-	public static TgdhGroupIdentifier joinGroup(DSAKey dsaKey,
-			String multicastAddress, int multicastPort, String groupName,
-			TgdhKeyListener keyListener) throws Exception {
+	public static TgdhGroupIdentifier joinGroup(final DSAKey dsaKey,
+			final String multicastAddress, final int multicastPort, final String groupName,
+			final TgdhKeyListener keyListener) throws Exception {
 		
-		TgdhGroupIdentifier groupIdentifier = new TgdhGroupIdentifier(
+		final TgdhGroupIdentifier groupIdentifier = new TgdhGroupIdentifier(
 				multicastAddress, multicastPort, groupName);
 		keyListener.setGroupIdentifer(groupIdentifier);
 
-		Worker worker = createWorker(multicastAddress, multicastPort,
+		final Object lock = new Object();
+		keyListener.setLock(lock);
+
+		final Worker worker = createWorker(multicastAddress, multicastPort,
 				groupName, dsaKey, keyListener);
 		worker.joinGroup();
+		
+		// cause the current thread to sleep so we wait for the key listener to be notified
+		// potential for a race condition when the worker notifies us before we call wait()
+		synchronized (lock) {
+			lock.wait();
+		}
+		
 		return groupIdentifier;
 	}
 
-	private static Worker createWorker(String multicastAddress,
-			int multicastPort, String groupName, DSAKey dsaKey, TgdhKeyListener keyListener)
+	private static Worker createWorker(final String multicastAddress,
+			final int multicastPort, final String groupName, final DSAKey dsaKey, final TgdhKeyListener keyListener)
 			throws TgdhException, NotSerializableException {
 		// Initializes jGroups
-		Communicator aCommunicator = new Communicator(multicastAddress,
+		final Communicator aCommunicator = new Communicator(multicastAddress,
 				multicastPort);
-		Address localaddress = aCommunicator.getLocalAdresse();
+		final Address localaddress = aCommunicator.getLocalAdresse();
 
-		LeafNode owner = new LeafNode(TgdhUtil
+		final LeafNode owner = new LeafNode(TgdhUtil
 				.getName((IpAddress) localaddress));
 
-		DSAParams params = dsaKey.getParams();
-		TgdhKeySpec keySpec = new TgdhKeySpec(params.getP(), params.getQ(), params.getG());
+		final DSAParams params = dsaKey.getParams();
+		final TgdhKeySpec keySpec = new TgdhKeySpec(params.getP(), params.getQ(), params.getG());
 
-		Tree aTree = new Tree(owner);
+		final Tree aTree = new Tree(owner);
 		aTree.setKeyParams(keySpec);
 		aTree.genOwnerKeyPair();
 
 		owner.setSignKey(owner.getPrivate());
 		owner.setVerifyKey(owner.getPublic());
 
-		Worker worker = new Worker(groupName, aTree, aCommunicator, 50, keyListener);
-		return worker;
+		return new Worker(groupName, aTree, aCommunicator, 50, keyListener);
 	}
 }
